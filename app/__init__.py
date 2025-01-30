@@ -27,6 +27,7 @@ def create_app(test_config=None):
     db.init_app(app)
     with app.app_context():
         from app.models import User
+        from app.views.user_view import user_bp
 
     migrate.init_app(app, db)
 
@@ -36,9 +37,6 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    # a simple page that says hello
-    @app.route("/hello")
-    def hello():
-        return "Hello, World!"
+    app.register_blueprint(user_bp)
 
     return app
