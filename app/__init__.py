@@ -28,6 +28,7 @@ def create_app(test_config=None):
     with app.app_context():
         from app.models import User
         from app.views.user_view import user_bp
+        from app.views.user_view import signup_bp
 
     migrate.init_app(app, db)
 
@@ -38,5 +39,6 @@ def create_app(test_config=None):
         pass
 
     app.register_blueprint(user_bp)
+    app.register_blueprint(signup_bp)
 
     return app

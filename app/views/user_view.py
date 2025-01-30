@@ -1,9 +1,10 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, render_template, request, jsonify
 from app import db
 from app.models import User
 from werkzeug.security import generate_password_hash
 
 user_bp = Blueprint("user", __name__, url_prefix="/users")
+signup_bp = Blueprint("signup", __name__, url_prefix="/signup")
 
 
 @user_bp.route("", methods=["GET"])
@@ -29,14 +30,12 @@ def create_user():
         return jsonify({"error": "Missing required fields"}), 400
 
     if User.query.filter_by(email=data["email"]).first():
-        return jsonify({"error": "Email already exists"}), 400
+        return jsonify({"error": "Email already exists"}), 409
 
     # パスワードをハッシュ化
     hashed_password = generate_password_hash(data["password"])
 
-    # 新しいユーザーを作成
     new_user = User(name=data["name"], email=data["email"], password=hashed_password)
-
     db.session.add(new_user)
     db.session.commit()
 
@@ -48,3 +47,8 @@ def create_user():
             "is_active": new_user.is_active,
         }
     ), 201
+
+
+@signup_bp.route("", methods=["GET"])
+def signup():
+    return render_template("signup.html")
