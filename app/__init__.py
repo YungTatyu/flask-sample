@@ -3,8 +3,10 @@ import os
 from flask import Flask
 
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 db = SQLAlchemy()
+migrate = Migrate()
 
 
 def create_app(test_config=None):
@@ -23,6 +25,10 @@ def create_app(test_config=None):
         app.config.from_mapping(test_config)
 
     db.init_app(app)
+    with app.app_context():
+        from app.models import User
+
+    migrate.init_app(app, db)
 
     # ensure the instance folder exists
     try:
