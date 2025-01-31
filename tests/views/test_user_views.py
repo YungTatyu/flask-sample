@@ -44,7 +44,7 @@ class TestUsersAPI:
         for key in expected_keys:
             assert key in response
 
-    def assert_db_data(self, actual, expect):
+    def assert_user(self, actual, expect):
         assert actual.id == expect.id
         assert actual.name == expect.name
         assert actual.email == expect.email
@@ -79,7 +79,7 @@ class TestUsersAPI:
         self.assert_response(["id", "name", "email", "is_active"], response_json)
 
         actual = db_session.query(User).filter_by(id=response_json["id"]).first()
-        self.assert_db_data(
+        self.assert_user(
             actual,
             User(
                 id=response_json["id"],
