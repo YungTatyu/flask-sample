@@ -6,3 +6,14 @@ python3 -m venv .venv
 pip install -r requirements.txt
 flask db upgrade
 ```
+
+## lint and format
+```
+make lint
+make fmt
+```
+
+## Test
+```
+make test
+```
