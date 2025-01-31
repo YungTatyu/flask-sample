@@ -3,7 +3,7 @@ import os
 from flask import Flask
 from flask_migrate import Migrate
 from app.models import db
-from app.views.user_view import signup_bp, user_bp
+from app.views.user_views import signup_bp, user_bp
 
 
 migrate = Migrate()
