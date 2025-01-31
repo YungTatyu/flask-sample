@@ -89,3 +89,71 @@ class TestUsersAPI:
                 is_active=True,
             ),
         )
+
+    def test_create_duplicated_username(self, client, db_session):
+        NAME = "test user 1"  # 重複user
+        PASSWORD = "password"
+        EMAIL = "test@example.com"
+        response = client.post(
+            "/users",
+            json={
+                "name": NAME,
+                "password": PASSWORD,
+                "email": EMAIL,
+            },
+        )
+        assert response.status_code == 409
+
+        # ユーザー数が変更されていないことを確認
+        user_count = db_session.query(User).count()
+        assert user_count == len(self.users)
+
+    def test_create_duplicated_email(self, client, db_session):
+        NAME = "test"
+        PASSWORD = "test1@example.com"
+        EMAIL = "test1@example.com"  # 重複email
+        response = client.post(
+            "/users",
+            json={
+                "name": NAME,
+                "password": PASSWORD,
+                "email": EMAIL,
+            },
+        )
+        assert response.status_code == 409
+
+        # ユーザー数が変更されていないことを確認
+        user_count = db_session.query(User).count()
+        assert user_count == len(self.users)
+
+    def test_create_user_missing_name(self, client, db_session):
+        PASSWORD = "password"
+        EMAIL = "test@example.com"
+        response = client.post(
+            "/users",
+            json={
+                "password": PASSWORD,
+                "email": EMAIL,
+            },
+        )
+        assert response.status_code == 400
+
+        # ユーザー数が変更されていないことを確認
+        user_count = db_session.query(User).count()
+        assert user_count == len(self.users)
+
+    def test_create_user_missing_password(self, client, db_session):
+        NAME = "name"
+        EMAIL = "test@example.com"
+        response = client.post(
+            "/users",
+            json={
+                "name": NAME,
+                "email": EMAIL,
+            },
+        )
+        assert response.status_code == 400
+
+        # ユーザー数が変更されていないことを確認
+        user_count = db_session.query(User).count()
+        assert user_count == len(self.users)
