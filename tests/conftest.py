@@ -1,5 +1,6 @@
 import pytest
 from app import create_app
+from app.models import db
 
 
 @pytest.fixture()
@@ -11,11 +12,14 @@ def app():
         }
     )
 
+    with app.app_context():
+        db.create_all()  # テスト用DB作成
     # other setup can go here
 
     yield app
 
-    # clean up / reset resources here
+    with app.app_context():
+        db.drop_all()  # テスト終了後にデータを削除
 
 
 @pytest.fixture()
@@ -26,3 +30,12 @@ def client(app):
 @pytest.fixture()
 def runner(app):
     return app.test_cli_runner()
+
+
+@pytest.fixture
+def db_session(app):
+    """テスト用データベースセッション"""
+    with app.app_context():
+        db.session.begin_nested()
+        yield db.session  # テスト実行
+        db.session.rollback()  # テスト後にデータをロールバック
