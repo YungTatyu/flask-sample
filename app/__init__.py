@@ -2,9 +2,10 @@ import os
 
 from flask import Flask
 from flask_migrate import Migrate
+from contextlib import suppress
+
 from app.models import db
 from app.views.user_views import signup_bp, user_bp
-
 
 migrate = Migrate()
 
@@ -29,10 +30,8 @@ def create_app(test_config=None):
     migrate.init_app(app, db)
 
     # ensure the instance folder exists
-    try:
+    with suppress(OSError):
         os.makedirs(app.instance_path)
-    except OSError:
-        pass
 
     app.register_blueprint(user_bp)
     app.register_blueprint(signup_bp)

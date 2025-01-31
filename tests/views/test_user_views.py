@@ -1,6 +1,7 @@
 import pytest
-from app.models.user_model import User
 from werkzeug.security import check_password_hash
+
+from app.models.user_model import User
 
 
 # htmlを返すエンドポイントのテスト例
