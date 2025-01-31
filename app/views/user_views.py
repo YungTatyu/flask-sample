@@ -30,6 +30,9 @@ def create_user():
     if not data.get("name") or not data.get("email") or not data.get("password"):
         return jsonify({"error": "Missing required fields"}), 400
 
+    if User.query.filter_by(name=data["name"]).first():
+        return jsonify({"error": "Name already exists"}), 409
+
     if User.query.filter_by(email=data["email"]).first():
         return jsonify({"error": "Email already exists"}), 409
 
