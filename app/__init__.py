@@ -2,9 +2,10 @@ import os
 
 from flask import Flask
 from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
+from app.models import db
+from app.views.user_view import signup_bp, user_bp
 
-db = SQLAlchemy()
+
 migrate = Migrate()
 
 
@@ -24,9 +25,6 @@ def create_app(test_config=None):
         app.config.from_mapping(test_config)
 
     db.init_app(app)
-    with app.app_context():
-        from app.models import User
-        from app.views.user_view import signup_bp, user_bp
 
     migrate.init_app(app, db)
 
