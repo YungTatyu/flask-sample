@@ -16,3 +16,7 @@ fmt:
 check:
 	ruff check
 	ruff format --diff
+
+.PHONY: test
+test:
+	pytest
