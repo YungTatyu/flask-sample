@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, jsonify, render_template, request
+from werkzeug.security import generate_password_hash
+
 from app import db
 from app.models import User
-from werkzeug.security import generate_password_hash
 
 user_bp = Blueprint("user", __name__, url_prefix="/users")
 signup_bp = Blueprint("signup", __name__, url_prefix="/signup")
