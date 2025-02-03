@@ -1,8 +1,8 @@
 import os
+from contextlib import suppress
 
 from flask import Flask
 from flask_migrate import Migrate
-from contextlib import suppress
 
 from app.models import db
 from app.views.user_views import signup_bp, user_bp
