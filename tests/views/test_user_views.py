@@ -63,15 +63,15 @@ class TestUsersAPI:
         assert len(response_json) == len(self.users)
 
     def test_create_user(self, client, db_session):
-        NAME = "test user"
-        PASSWORD = "password"
-        EMAIL = "test@example.com"
+        name = "test user"
+        password = "password"
+        email = "test@example.com"
         response = client.post(
             "/users",
             json={
-                "name": NAME,
-                "password": PASSWORD,
-                "email": EMAIL,
+                "name": name,
+                "password": password,
+                "email": email,
             },
         )
         assert response.status_code == 201
@@ -84,23 +84,23 @@ class TestUsersAPI:
             actual,
             User(
                 id=response_json["id"],
-                name=NAME,
-                email=EMAIL,
-                password=PASSWORD,
+                name=name,
+                email=email,
+                password=password,
                 is_active=True,
             ),
         )
 
     def test_create_duplicated_username(self, client, db_session):
-        NAME = "test user 1"  # 重複user
-        PASSWORD = "password"
-        EMAIL = "test@example.com"
+        name = "test user 1"  # 重複user
+        password = "password"
+        email = "test@example.com"
         response = client.post(
             "/users",
             json={
-                "name": NAME,
-                "password": PASSWORD,
-                "email": EMAIL,
+                "name": name,
+                "password": password,
+                "email": email,
             },
         )
         assert response.status_code == 409
@@ -110,15 +110,15 @@ class TestUsersAPI:
         assert user_count == len(self.users)
 
     def test_create_duplicated_email(self, client, db_session):
-        NAME = "test"
-        PASSWORD = "test1@example.com"
-        EMAIL = "test1@example.com"  # 重複email
+        name = "test"
+        password = "test1@example.com"
+        email = "test1@example.com"  # 重複email
         response = client.post(
             "/users",
             json={
-                "name": NAME,
-                "password": PASSWORD,
-                "email": EMAIL,
+                "name": name,
+                "password": password,
+                "email": email,
             },
         )
         assert response.status_code == 409
@@ -128,13 +128,13 @@ class TestUsersAPI:
         assert user_count == len(self.users)
 
     def test_create_user_missing_name(self, client, db_session):
-        PASSWORD = "password"
-        EMAIL = "test@example.com"
+        password = "password"
+        email = "test@example.com"
         response = client.post(
             "/users",
             json={
-                "password": PASSWORD,
-                "email": EMAIL,
+                "password": password,
+                "email": email,
             },
         )
         assert response.status_code == 400
@@ -144,13 +144,13 @@ class TestUsersAPI:
         assert user_count == len(self.users)
 
     def test_create_user_missing_password(self, client, db_session):
-        NAME = "name"
-        EMAIL = "test@example.com"
+        name = "name"
+        email = "test@example.com"
         response = client.post(
             "/users",
             json={
-                "name": NAME,
-                "email": EMAIL,
+                "name": name,
+                "email": email,
             },
         )
         assert response.status_code == 400
