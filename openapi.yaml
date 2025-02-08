@@ -42,6 +42,17 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+              example:
+                error: "Invalid query parameters"
     post:
       summary: Create a new user
       tags:
@@ -51,7 +62,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserCreate'
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
       responses:
         '201':
           description: User created successfully
@@ -150,6 +168,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: "User not found."
     delete:
       summary: Delete a user by ID
       tags:
@@ -163,6 +192,18 @@ paths:
       responses:
         '204':
           description: User deleted successfully
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: "User not found."
+
 components:
   schemas:
     User:
