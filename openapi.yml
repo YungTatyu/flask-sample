@@ -1313,19 +1313,42 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
 
     post:
-      summary: "Create new shift history"
-      description: "New registration of shift history"
+      summary: "Register multiple shift history records from a CSV file"
+      description: "Accepts a CSV file containing shift history records and registers all records if they are valid. If any record is invalid, no records will be registered."
       tags:
         - Shift history resource
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/shiftHistoryRequiredAll'
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: "CSV file containing shift history records"
       responses:
-        "200":
-          description: "shift history creation success"
+        "201":
+          description: "Successfully created all shift history records"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_created:
+                    type: integer
+                    description: "Total number of records successfully created"
+        "400":
+          description: "Invalid file format or one or more records contain errors. No records were registered."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: "Error message explaining the issue"
 
   /api/shift-histories/{shiftHistoryId}:
     get:
