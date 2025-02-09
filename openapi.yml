@@ -553,6 +553,24 @@ paths:
         "401":
           $ref: '#/components/responses/UnauthorizedOrAdminResponse'
 
+    delete:
+      summary: "Delete user info with specified user ID"
+      description: "Deletes a user based on the specified user ID"
+      tags:
+        - Users resource
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: "User info deleted successfully"
+          content: {}
+        "401":
+          $ref: '#/components/responses/AdminOnlyResponse'
+
   /api/scheduled-shifts:
     get:
       summary: "Search for scheduled shifts using query parameters (pagination supported)"
