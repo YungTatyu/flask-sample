@@ -64,17 +64,6 @@ paths:
                     example: "invalid query parameter."
         "401":
           $ref: '#/components/responses/UnauthorizedResponse'
-        "404":
-          description: "User not found."
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    description: "Error details"
-                    example: "User not found."
     post:
       summary: "Create new user"
       description: "New user registration. admin hits this api"
@@ -112,6 +101,11 @@ paths:
                   name:
                     type: string
                     example: "john"
+                  email:
+                    type: string
+                    format: email
+                  is_active:
+                    type: boolean
         "400":
           description: "Input data is invalid"
           content:
