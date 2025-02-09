@@ -818,47 +818,91 @@ paths:
                     type: string
                     example: "Shift not found."
 
-  /api/users/{userId}/scheduled-shifts:
+  /api/scheduled-shifts/{userId}:
     get:
-      summary: "Get one scheduled shift with the specified user ID"
-      description: "Gets one scheduled shift based on the specified user ID"
+      summary: "Get scheduled shifts for a user within a specified date range (default: current month)"
+      description: "Fetch the scheduled shifts for a specific user, with optional cancellation status filtering. By default, returns shifts for the current month."
       tags:
         - Scheduled shifts resource
       parameters:
         - name: userId
           in: path
-          description: "user's unique ID"
           required: true
+          description: "The ID of the user to retrieve scheduled shifts for"
           schema:
             type: integer
+        - name: start_date
+          in: query
+          required: false
+          description: "Start date for the shift range (inclusive), formatted as yyyy-MM-dd. Defaults to the first day of the current month."
+          schema:
+            type: string
+            format: date
+            default: "2025-02-01"  # 例: 現在の月の1日
+        - name: end_date
+          in: query
+          required: false
+          description: "End date for the shift range (inclusive), formatted as yyyy-MM-dd. Defaults to the last day of the current month."
+          schema:
+            type: string
+            format: date
+            default: "2025-02-28"  # 例: 現在の月の最終日
+        - name: include_canceled
+          in: query
+          required: false
+          description: "Whether to include canceled shifts in the response (default: false)"
+          schema:
+            type: boolean
+            default: false
       responses:
         "200":
-          description: "Successfully obtained scheduled shift"
+          description: "Successfully retrieved scheduled shifts"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/scheduledShift'
-    post:
-      summary: "Create a new scheduled shift for the specified user ID"
-      description: "New registration of scheduled shift for specified user ID. admin hits this api"
-      tags:
-        - Scheduled shifts resource
-      parameters:
-        - name: userId
-          in: path
-          description: "user's unique ID"
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/scheduledShiftRequiredAll'
-      responses:
-        "201":
-          description: "scheduled shift creation success"
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: "Total number of scheduled shifts"
+                  results:
+                    type: array
+                    description: "List of scheduled shifts sorted by start_time"
+                    items:
+                      type: object
+                      properties:
+                        start_time:
+                          type: string
+                          format: date-time
+                        working_time:
+                          type: integer
+                          description: "Total working time in minutes"
+                        breaking_time:
+                          type: integer
+                          description: "Total break time in minutes"
+                        canceled_at:
+                          type: string
+                          format: date-time
+                        updated_by:
+                          type: integer
+                        user_id:
+                          type: integer
+                        username:
+                          type: string
+                        preferred_shift_id:
+                          type: integer
+        "400":
+          description: "invalid query parameter."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "invalid query parameter."
+        "401":
+          $ref: '#/components/responses/UnauthorizedResponse'
 
   /api/preferred-shifts:
     get:
