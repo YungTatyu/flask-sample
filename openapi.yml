@@ -906,34 +906,58 @@ paths:
 
   /api/preferred-shifts:
     get:
-      summary: "Search for preferred shifts using query parameters (pagination supported)"
-      description: "Get preferred shifts with specified parameters and paginate with offset and limit"
+      summary: "Retrieve preferred shifts within a specified date range"
+      description: "Fetch the preferred shifts that fall within the given start and end dates. If no date range is provided, the default range is the current month."
       tags:
         - Preferred shifts resource
       parameters:
-        - name: offset
+        - name: start_date
           in: query
-          description: "Acquisition start position (default: 0)"
           required: false
+          description: "Start date for the shift range (inclusive), formatted as yyyy-MM-dd. Defaults to the first day of the current month."
           schema:
-            type: integer
-            minimum: 0
-            default: 0
-        - name: limit
+            type: string
+            format: date
+            default: "2025-02-01"  # 例: 現在の月の1日
+        - name: end_date
           in: query
-          description: "Number of results retrieved (default: 10)"
           required: false
+          description: "End date for the shift range (inclusive), formatted as yyyy-MM-dd. Defaults to the last day of the current month."
           schema:
-            type: integer
-            minimum: 1
-            default: 10
+            type: string
+            format: date
+            default: "2025-02-28"  # 例: 現在の月の最終日
       responses:
         "200":
           description: "Successfully obtained preferred shift"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/preferredShift'
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: "Total number of preferred shifts found"
+                  results:
+                    type: array
+                    description: "List of preferred shifts"
+                    items:
+                      type: object
+                      properties:
+                        start_time:
+                          type: string
+                          format: date-time
+                          description: "Start time of the preferred shift"
+                        end_time:
+                          type: string
+                          format: date-time
+                          description: "End time of the preferred shift"
+                        user_id:
+                          type: integer
+                          description: "ID of the user associated with the shift"
+                        username:
+                          type: string
+                          description: "Name of the user associated with the shift"
     post:
       summary: "Create new preferred shift"
       description: "New registration of preferred shift"
@@ -1652,16 +1676,18 @@ components:
         end_time:
           type: string
           format: date-time
-        userid:
+        user_id:
           type: integer
       required:
         - start_time
         - end_time
-        - userid
+        - user_id
 
     preferredShift:
       type: object
       properties:
+        user_id:
+          type: integer
         start_time:
           type: string
           format: date-time
