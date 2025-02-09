@@ -629,6 +629,7 @@ paths:
                           description: "Total break time in minutes"
                         canceled_at:
                           type: string
+                          nullable: true
                           format: date-time
                         updated_by:
                           type: integer
@@ -681,6 +682,7 @@ paths:
                     description: "Total break time in minutes"
                   canceled_at:
                     type: string
+                    nullable: true
                     format: date-time
                   updated_by:
                     type: integer
@@ -703,6 +705,65 @@ paths:
           $ref: '#/components/responses/AdminOnlyResponse'
 
   /api/scheduled-shifts/{shiftId}:
+    get:
+      summary: "Retrieve details of a scheduled shift"
+      description: "Fetch the details of a specific scheduled shift by its ID."
+      tags:
+        - Scheduled shifts resource
+      parameters:
+        - name: shiftId
+          in: path
+          required: true
+          description: "Unique identifier of the scheduled shift"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Successfully retrieved scheduled shift details"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  start_time:
+                    type: string
+                    format: date-time
+                    description: "Start time of the shift"
+                  working_time:
+                    type: integer
+                    description: "Total working time in minutes"
+                  breaking_time:
+                    type: integer
+                    description: "Total break time in minutes"
+                  canceled_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                    description: "Timestamp when the shift was canceled (null if not canceled)"
+                  updated_by:
+                    type: integer
+                    description: "ID of the user who last updated the shift"
+                  user_id:
+                    type: integer
+                    description: "ID of the user assigned to the shift"
+                  username:
+                    type: string
+                  preferred_shift_id:
+                    type: integer
+                    description: "ID of the preferred shift associated with this scheduled shift"
+        "401":
+          $ref: '#/components/responses/UnauthorizedResponse'
+        "404":
+          description: "Shift not found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Shift not found."
+
     patch:
       summary: "update with specified shift ID (some element)"
       description: |
@@ -746,6 +807,7 @@ paths:
                     description: "Total break time in minutes"
                   canceled_at:
                     type: string
+                    nullable: true
                     format: date-time
                   updated_by:
                     type: integer
@@ -798,6 +860,7 @@ paths:
                     description: "Total break time in minutes"
                   canceled_at:
                     type: string
+                    nullable: true
                     format: date-time
                   updated_by:
                     type: integer
@@ -882,6 +945,7 @@ paths:
                           description: "Total break time in minutes"
                         canceled_at:
                           type: string
+                          nullable: true
                           format: date-time
                         updated_by:
                           type: integer
@@ -1176,48 +1240,6 @@ paths:
                     example: "invalid query parameter."
         "401":
           $ref: '#/components/responses/UnauthorizedResponse'
-
-  /api/users/{userId}/preferred-shifts:
-    get:
-      summary: "Get one preferred shift with the specified user ID"
-      description: "Gets one preferred shift based on the specified user ID"
-      tags:
-        - Preferred shifts resource
-      parameters:
-        - name: userId
-          in: path
-          description: "user's unique ID"
-          required: true
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: "Successfully obtained preferred shift"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/preferredShift'
-    post:
-      summary: "Create a new preferred shift for the specified user ID"
-      description: "New registration of preferred shift for specified user ID"
-      tags:
-        - Preferred shifts resource
-      parameters:
-        - name: userId
-          in: path
-          description: "user's unique ID"
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/preferredShiftRequiredAll'
-      responses:
-        "200":
-          description: "preferred shift creation success"
 
   /api/shift-histories:
     get:
