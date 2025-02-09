@@ -1,0 +1,1474 @@
+openapi: 3.0.3
+info:
+  title: Intern shift management app
+  description: |-
+    The intern shift management app is an app to streamline shift management for intern students.
+    The main functions include registering, updating, and deleting shifts, as well as adding interns and managing attendance.
+    You can easily change and confirm shifts, supporting internship operations.
+  version: 1.0.0
+servers:
+  - url: https://irvinesystems.internshift.com
+
+paths:
+  /api/users:
+    get:
+      summary: "Search users by query parameters (pagination supported)"
+      description: "Get user information with specified parameters and paginate with offset and limit"
+      tags:
+        - Users resource
+      parameters:
+        - name: offset
+          in: query
+          description: "Acquisition start position (default: 0)"
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          description: "Number of results retrieved (default: 10)"
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+      responses:
+        "200":
+          description: "Successfully retrieved user information"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  email:
+                    type: string
+                    format: email
+                  is_active:
+                    type: boolean
+                  created_by:
+                    type: integer
+        "400":
+          description: "invalid query parameter."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "invalid query parameter."
+        "401":
+          $ref: '#/components/responses/UnauthorizedResponse'
+        "404":
+          description: "User not found."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: "Error details"
+                    example: "User not found."
+    post:
+      summary: "Create new user"
+      description: "New user registration. admin hits this api"
+      tags:
+        - Users resource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required:
+                - name
+                - email
+                - password
+      responses:
+        "201":
+          description: "user creation success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "12345"
+                  name:
+                    type: string
+                    example: "john"
+        "400":
+          description: "Input data is invalid"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: "Details of the error that occurred"
+                    example: "Username is invalid."
+        "401":
+          $ref: '#/components/responses/AdminOnlyResponse'
+        "404":
+          description: "Hide endpoint for requests from unexpected clients"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Page not found."
+        "409":
+          description: "Conflict - user already exists"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: "Conflict error details"
+                    example: "A user with this email already exists."
+
+  /api/users/{userId}:
+    get:
+      summary: "Get user with specified user ID"
+      description: "Gets a user based on the specified user ID"
+      tags:
+        - Users resource
+      parameters:
+        - name: userId
+          in: path
+          description: "User's unique ID"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Successfully acquired user"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  email:
+                    type: string
+                    format: email
+                  is_active:
+                    type: boolean
+        "401":
+          $ref: '#/components/responses/UnauthorizedResponse'
+        "404":
+          description: "User not found"
+    put:
+      summary: "update (everything) with the specified user ID"
+      tags:
+        - Users resource
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: "name, email, password, is_active of the user you want to update"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                is_active:
+                  type: boolean
+                created_by:
+                  type: integer
+              required:
+                - name
+                - email
+                - password
+                - is_active
+      responses:
+        "200":
+          description: "User updated successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  email:
+                    type: string
+                    format: email
+                  is_active:
+                    type: boolean
+        "400":
+          description: "Input data is invalid"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: "Details of the error that occurred"
+                    example: "Username is invalid."
+        "401":
+          $ref: '#/components/responses/UnauthorizedOrAdminResponse'
+
+    patch:
+      summary: "update with specified user ID (some element)"
+      description: |
+        Updates the specified user information.  
+        Only the properties included in the request body will be updated; unspecified properties will not be changed.
+      tags:
+        - Users resource
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        description: |
+          **Updatable items:**
+          - `name`
+          - `email`
+          - `password`
+          - `is_active`
+          **Partial updates are possible. Only the items you include in the request body will be updated; other values ​​will remain unchanged. **
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                is_active:
+                  type: boolean
+                created_by:
+                  type: integer
+              additionalProperties: false
+      responses:
+        "200":
+          description: "User updated successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  email:
+                    type: string
+                    format: email
+                  is_active:
+                    type: boolean
+        "400":
+          description: "Input data is invalid"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: "Details of the error that occurred"
+                    example: "Username is invalid."
+        "401":
+          $ref: '#/components/responses/UnauthorizedOrAdminResponse'
+    delete:
+      summary: "Delete user with specified user ID"
+      description: "Deletes a user based on the specified user ID"
+      tags:
+        - Users resource
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: "User deleted successfully"
+        "401":
+          $ref: '#/components/responses/AdminOnlyResponse'
+
+  /api/scheduled-shifts/{shiftId}/users:
+    get:
+      summary: "Get one user with specified scheduled shift ID"
+      description: "Gets a single user based on the specified scheduled shift ID"
+      tags:
+        - Users resource
+      parameters:
+        - name: shiftId
+          in: path
+          description: "Unique ID for scheduled shift"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Successfully acquired user"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  email:
+                    type: string
+                    format: email
+                  is_active:
+                    type: boolean
+                  created_by:
+                    type: integer
+
+  /api/preferred-shifts/{shiftId}/users:
+    get:
+      summary: "Get a single user with the specified preferred shift ID"
+      description: "Gets a single user based on the specified preferred shift ID"
+      tags:
+        - Users resource
+      parameters:
+        - name: shiftId
+          in: path
+          description: "preferred shift unique ID"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Successfully acquired user"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  email:
+                    type: string
+                    format: email
+                  is_active:
+                    type: boolean
+                  created_by:
+                    type: integer
+
+  /api/scheduled-shifts:
+    get:
+      summary: "Search for scheduled shifts using query parameters (pagination supported)"
+      description: "Get scheduled shifts with specified parameters and paginate with offset and limit"
+      tags:
+        - Scheduled shifts resource
+      parameters:
+        - name: offset
+          in: query
+          description: "Acquisition start position (default: 0)"
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          description: "Number of results retrieved (default: 10)"
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+      responses:
+        "200":
+          description: "Successfully obtained scheduled shift"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/scheduledShift'
+    post:
+      summary: "Create a new scheduled shift"
+      description: "New registration of scheduled shift. admin hits this api"
+      tags:
+        - Scheduled shifts resource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/scheduledShiftRequiredAll'
+      responses:
+        "200":
+          description: "scheduled shift creation success"
+
+  /api/scheduled-shifts/{shiftId}:
+    get:
+      summary: "Get scheduled shift with specified shift ID"
+      description: "Gets scheduled shift based on specified shift ID"
+      tags:
+        - Scheduled shifts resource
+      parameters:
+        - name: shiftId
+          in: path
+          description: "Unique ID for scheduled shift"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Successfully obtained scheduled shift"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/scheduledShift'
+    put:
+      summary: "update (everything) with specified shift ID"
+      tags:
+        - Scheduled shifts resource
+      parameters:
+        - name: shiftId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: "start_time, working_time, breaking_time of the shift you want to update"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/scheduledShiftRequiredAll'
+      responses:
+        "200":
+          description: "Successfully updated scheduled shift"
+    patch:
+      summary: "update with specified shift ID (some element)"
+      description: |
+        Updates the specified shift information.  
+        Only the properties included in the request body will be updated; unspecified properties will not be changed.
+      tags:
+        - Scheduled shifts resource
+      parameters:
+        - name: shiftId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: |
+          **Updatable items:**
+          - `start_time`
+          - `working_time`
+          - `breaking_time`
+          **Partial updates are possible. Only the items you include in the request body will be updated; other values ​​will remain unchanged. **
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/scheduledShift'
+              additionalProperties: false
+      responses:
+        200:
+          description: User information updated successfully
+    delete:
+      summary: "Delete shift with specified shift ID"
+      description: "Deletes a shift based on the specified shift ID"
+      tags:
+        - Scheduled shifts resource
+      parameters:
+        - name: shiftId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Successfully deleted shift"
+
+  /api/users/{userId}/scheduled-shifts:
+    get:
+      summary: "Get one scheduled shift with the specified user ID"
+      description: "Gets one scheduled shift based on the specified user ID"
+      tags:
+        - Scheduled shifts resource
+      parameters:
+        - name: userId
+          in: path
+          description: "user's unique ID"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Successfully obtained scheduled shift"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/scheduledShift'
+    post:
+      summary: "Create a new scheduled shift for the specified user ID"
+      description: "New registration of scheduled shift for specified user ID. admin hits this api"
+      tags:
+        - Scheduled shifts resource
+      parameters:
+        - name: userId
+          in: path
+          description: "user's unique ID"
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/scheduledShiftRequiredAll'
+      responses:
+        "201":
+          description: "scheduled shift creation success"
+
+  /api/preferred-shifts:
+    get:
+      summary: "Search for preferred shifts using query parameters (pagination supported)"
+      description: "Get preferred shifts with specified parameters and paginate with offset and limit"
+      tags:
+        - Preferred shifts resource
+      parameters:
+        - name: offset
+          in: query
+          description: "Acquisition start position (default: 0)"
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          description: "Number of results retrieved (default: 10)"
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+      responses:
+        "200":
+          description: "Successfully obtained preferred shift"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/preferredShift'
+    post:
+      summary: "Create new preferred shift"
+      description: "New registration of preferred shift"
+      tags:
+        - Preferred shifts resource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/preferredShiftRequiredAll'
+      responses:
+        "201":
+          description: "preferred shift creation success"
+
+  /api/preferred-shifts/{shiftId}:
+    get:
+      summary: "Get preferred shift with specified shift ID"
+      description: "Gets the preferred shift based on the specified shift ID"
+      tags:
+        - Preferred shifts resource
+      parameters:
+        - name: shiftId
+          in: path
+          description: "preferred shift unique ID"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Successfully obtained preferred shift"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/preferredShift'
+    put:
+      summary: "update (everything) with specified shift ID"
+      tags:
+        - Preferred shifts resource
+      parameters:
+        - name: shiftId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: "start_time, end_time of the shift you want to update"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/preferredShiftRequiredAll'
+      responses:
+        "200":
+          description: "Successfully updated preferred shift"
+    patch:
+      summary: "update with specified shift ID (some element)"
+      description: |
+        Updates the specified shift information.  
+        Only the properties included in the request body will be updated; unspecified properties will not be changed.
+      tags:
+        - Preferred shifts resource
+      parameters:
+        - name: shiftId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: |
+          **Updatable items:**
+          - `start_time`
+          - `end_time`
+          **Partial updates are possible. Only the items you include in the request body will be updated; other values ​​will remain unchanged. **
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/preferredShift'
+              additionalProperties: false
+      responses:
+        200:
+          description: User information updated successfully
+    delete:
+      summary: "Delete shift with specified shift ID"
+      description: "Deletes a shift based on the specified shift ID"
+      tags:
+        - Preferred shifts resource
+      parameters:
+        - name: shiftId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Successfully deleted shift"
+
+  /api/users/{userId}/preferred-shifts:
+    get:
+      summary: "Get one preferred shift with the specified user ID"
+      description: "Gets one preferred shift based on the specified user ID"
+      tags:
+        - Preferred shifts resource
+      parameters:
+        - name: userId
+          in: path
+          description: "user's unique ID"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Successfully obtained preferred shift"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/preferredShift'
+    post:
+      summary: "Create a new preferred shift for the specified user ID"
+      description: "New registration of preferred shift for specified user ID"
+      tags:
+        - Preferred shifts resource
+      parameters:
+        - name: userId
+          in: path
+          description: "user's unique ID"
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/preferredShiftRequiredAll'
+      responses:
+        "200":
+          description: "preferred shift creation success"
+
+  /api/shift-histories:
+    get:
+      summary: "Search shift histories using query parameters (pagination supported)"
+      description: "Get shift histories with specified parameters and paginate with offset and limit"
+      tags:
+        - Shift history resource
+      parameters:
+        - name: offset
+          in: query
+          description: "Acquisition start position (default: 0)"
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          description: "Number of results retrieved (default: 10)"
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+      responses:
+        "200":
+          description: "Successfully retrieved shift histories"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/shiftHistory'
+    post:
+      summary: "Create new shift history"
+      description: "New registration of shift history"
+      tags:
+        - Shift history resource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/shiftHistoryRequiredAll'
+      responses:
+        "200":
+          description: "shift history creation success"
+
+  /api/shift-histories/{shiftHistoryId}:
+    get:
+      summary: "Get shift history with specified shift ID"
+      description: "Get shift history based on the specified shift ID"
+      tags:
+        - Shift history resource
+      parameters:
+        - name: shiftHistoryId
+          in: path
+          description: "unique ID of shift history"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Successfully retrieved shift history"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/shiftHistory'
+    put:
+      summary: "update (everything) with specified shift ID"
+      tags:
+        - Shift history resource
+      parameters:
+        - name: shiftHistoryId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: "start_time, end_time of the shift you want to update"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/shiftHistoryRequiredAll'
+      responses:
+        "200":
+          description: "Successfully updated shift history"
+    patch:
+      summary: "update with specified shift ID (some element)"
+      description: |
+        Updates the specified shift information.  
+        Only the properties included in the request body will be updated; unspecified properties will not be changed.
+      tags:
+        - Shift history resource
+      parameters:
+        - name: shiftHistoryId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: |
+          **Updatable items:**
+          - `start_time`
+          - `end_time`
+          **Partial updates are possible. Only the items you include in the request body will be updated; other values ​​will remain unchanged. **
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/shiftHistory'
+              additionalProperties: false
+      responses:
+        200:
+          description: User information updated successfully
+    delete:
+      summary: "Delete shift with specified shift ID"
+      description: "Deletes a shift based on the specified shift ID"
+      tags:
+        - Shift history resource
+      parameters:
+        - name: shiftHistoryId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Successfully deleted shift"
+
+  /api/users/{userId}/shift-histories:
+    get:
+      summary: "Get one shift history with specified user ID"
+      description: "Get a single shift history based on the specified user ID"
+      tags:
+        - Shift history resource
+      parameters:
+        - name: userId
+          in: path
+          description: "user's unique ID"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Successfully retrieved shift history"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/shiftHistory'
+    post:
+      summary: "Create a new shift history for the specified user ID"
+      description: "New registration of shift history for the specified user ID"
+      tags:
+        - Shift history resource
+      parameters:
+        - name: userId
+          in: path
+          description: "user's unique ID"
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/shiftHistoryRequiredAll'
+      responses:
+        "200":
+          description: "shift history creation success"
+
+  /api/user-infos:
+    get:
+      summary: "Search user infos with query parameters (pagination supported)"
+      description: "Get user infos with specified parameters and paginate with offset and limit"
+      tags:
+        - User infos resource
+      parameters:
+        - name: offset
+          in: query
+          description: "Acquisition start position (default: 0)"
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: limit
+          in: query
+          description: "Number of results retrieved (default: 10)"
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+      responses:
+        "200":
+          description: "Successfully obtained user infos"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userInfo'
+    post:
+      summary: "Create new user info"
+      description: "New user info registration. admin hits this api"
+      tags:
+        - User info resource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userInfoRequiredAll'
+      responses:
+        "200":
+          description: "user info creation success"
+
+  /api/user-infos/{userInfoId}:
+    get:
+      summary: "Get user info with specified user info ID"
+      description: "Get user info based on the specified user info ID"
+      tags:
+        - User infos resource
+      parameters:
+        - name: userInfoId
+          in: path
+          description: "user info unique ID"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Successfully obtained user info"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userInfo'
+    put:
+      summary: "update (everything) with the specified user info ID"
+      tags:
+        - User infos resource
+      parameters:
+        - name: userInfoId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: "The user info you want to update name_ja, phone_number1, phone_number2, nfc_id, level, interview_date, contract_date, expire_date"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userInfoRequiredAll'
+      responses:
+        "200":
+          description: "User info updated successfully"
+    patch:
+      summary: "update with specified user info ID (some element)"
+      description: |
+        Updates the specified user info information.  
+        Only the properties included in the request body will be updated; unspecified properties will not be changed.
+      tags:
+        - User infos resource
+      parameters:
+        - name: userInfoId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: |
+          **Updatable items:**
+          - `name_ja`
+          - `phone_number1`
+          - `phone_number2`
+          - `nfc_id`
+          - `level`
+          - `interview_date`
+          - `contract_date`
+          - `expire_date`
+          **Partial updates are possible. Only the items you include in the request body will be updated; other values ​​will remain unchanged. **
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userInfo'
+              additionalProperties: false
+      responses:
+        200:
+          description: User information updated successfully
+    delete:
+      summary: "Delete user info with specified user info ID"
+      description: "Deletes user info based on the specified user info ID"
+      tags:
+        - User infos resource
+      parameters:
+        - name: userInfoId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Successfully deleted user info"
+
+  /api/users/{userId}/user-infos:
+    get:
+      summary: "Get one user info with specified user ID"
+      description: "Gets one user info based on the specified user ID"
+      tags:
+        - User infos resource
+      parameters:
+        - name: userId
+          in: path
+          description: "user's unique ID"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Successfully obtained user info"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userInfo'
+    put:
+      summary: "update one user info based on the specified user ID (everything)"
+      tags:
+        - User infos resource
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: "The user info you want to update name_ja, phone_number1, phone_number2, nfc_id, level, interview_date, contract_date, expire_date"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userInfoRequiredAll'
+      responses:
+        "200":
+          description: "User info updated successfully"
+    patch:
+      summary: "update user info for specified user ID (some element)"
+      description: |
+        Updates one user info information based on the specified user ID.  
+        Only the properties included in the request body will be updated; unspecified properties will not be changed.
+      tags:
+        - User infos resource
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        description: |
+          **Updatable items:**
+          - `name_ja`
+          - `phone_number1`
+          - `phone_number2`
+          - `nfc_id`
+          - `level`
+          - `interview_date`
+          - `contract_date`
+          - `expire_date`
+          **Partial updates are possible. Only the items you include in the request body will be updated; other values ​​will remain unchanged. **
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userInfo'
+              additionalProperties: false
+      responses:
+        200:
+          description: User information updated successfully
+    post:
+      summary: "Create a new user info for the specified user ID"
+      description: "New registration of user info for the specified user ID. admin hits this api"
+      tags:
+        - User infos resource
+      parameters:
+        - name: userId
+          in: path
+          description: "user's unique ID"
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userInfoRequiredAll'
+      responses:
+        "200":
+          description: "user info creation success"
+    delete:
+      summary: "Delete user info for specified user ID"
+      description: "Deletes one user info based on the specified user ID"
+      tags:
+        - User infos resource
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Successfully deleted user info"
+
+  /login:
+    get:
+      tags:
+        - Pages
+      summary: Login page
+      description: page to enter username and password
+      responses:
+        "200":
+          description: File name:`login.html`
+          content:
+            text/html:
+              schema:
+                type: string
+                example: |
+                  <!DOCTYPE html>
+                  <html>
+                  <head><title>Example</title></head>
+                  </html>
+        "500":
+          description: Server error page
+
+  /admin/shifts:
+    get:
+      tags:
+        - Admin role
+      summary: admin shift management page
+      description: A page where admins can manage, add and delete shifts.
+      responses:
+        "200":
+          description: File name:`shifts.html`
+          content:
+            text/html:
+              schema:
+                type: string
+                example: |
+                  <!DOCTYPE html>
+                  <html>
+                  <head><title>Example</title></head>
+                  </html>
+        "400":
+          description: Client error page
+        "500":
+          description: Server error page
+
+  /admin/shifts/register:
+    get:
+      tags:
+        - Admin role
+      summary: Shift addition page
+      description: Page to add shifts
+      responses:
+        "200":
+          description: File name:`shift-register.html`
+          content:
+            text/html:
+              schema:
+                type: string
+                example: |
+                  <!doctype html>
+                  <html>
+                  <head><title>example</title></head>
+                  </html>
+        "400":
+          description: Client error page
+        "500":
+          description: Server error page
+
+  /admin/shifts/histories:
+    get:
+      tags:
+        - Admin role
+      summary: Attendance history management page
+      description: Page to display attendance history and output csv
+      responses:
+        "200":
+          description: File name:`admin/shift-histories.html`
+          content:
+            text/html:
+              schema:
+                type: string
+                example: |
+                  <!DOCTYPE html>
+                  <html>
+                  <head><title>Example</title></head>
+                  </html>
+        "400":
+          description: Client error page
+        "500":
+          description: Server error page
+
+  /admin/users:
+    get:
+      tags:
+        - Admin role
+      summary: User management page
+      description: Page to view and edit user list
+      responses:
+        "200":
+          description: File name:`admin/user.html`
+          content:
+            text/html:
+              schema:
+                type: string
+                example: |
+                  <!DOCTYPE html>
+                  <html>
+                  <head><title>Example</title></head>
+                  </html>
+        "400":
+          description: Client error page
+        "500":
+          description: Server error page
+
+  /admin/users/update:
+    get:
+      tags:
+        - Admin role
+      summary: admin user management page
+      description: Page where admin can view and edit user list
+      responses:
+        "200":
+          description: File name:`admin.html`
+          content:
+            text/html:
+              schema:
+                type: string
+                example: |
+                  <!DOCTYPE html>
+                  <html>
+                  <head><title>Example</title></head>
+                  </html>
+        "400":
+          description: Client error page
+        "500":
+          description: Server error page
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    UnauthorizedError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: "Authentication error details"
+          example: "Token is invalid or expired."
+
+    AdminOnlyError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: "Admin privileges are required to access this resource."
+          example: "Forbidden - Admin privileges required."
+
+    UnauthorizedOrAdminResponseError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: "Authentication or authorization error details"
+          example: "Unauthorized - Missing or invalid token, or admin privileges required."
+
+    scheduledShiftRequiredAll:
+      type: object
+      properties:
+        start_time:
+          type: string
+          format: date-time
+        working_time:
+          type: integer
+        breaking_time:
+          type: integer
+      required:
+        - start_time
+        - working_time
+        - breaking_time
+
+    scheduledShift:
+      type: object
+      properties:
+        start_time:
+          type: string
+          format: date-time
+        working_time:
+          type: integer
+        breaking_time:
+          type: integer
+
+    preferredShiftRequiredAll:
+      type: object
+      properties:
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+      required:
+        - start_time
+        - end_time
+
+    preferredShift:
+      type: object
+      properties:
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+
+    shiftHistoryRequiredAll:
+      type: object
+      properties:
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+      required:
+        - start_time
+        - end_time
+
+    shiftHistory:
+      type: object
+      properties:
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+
+    userInfoRequiredAll:
+      type: object
+      properties:
+        name_ja:
+          type: string
+        phone_number1:
+          type: integer
+        phone_number2:
+          type: integer
+        nfc_id:
+          type: integer
+        level:
+          type: number
+        interview_date:
+          type: string
+          format: date-time
+        contract_date:
+          type: string
+          format: date-time
+        expire_date:
+          type: string
+          format: date-time
+      required:
+        - name_ja
+        - phone_number1
+        - phone_number2
+        - nfc_id
+        - level
+        - interview_date
+        - contract_date
+        - expire_date
+
+    userInfo:
+      type: object
+      properties:
+        name_ja:
+          type: string
+        phone_number1:
+          type: integer
+        phone_number2:
+          type: integer
+        nfc_id:
+          type: integer
+        level:
+          type: number
+        interview_date:
+          type: string
+          format: date-time
+        contract_date:
+          type: string
+          format: date-time
+        expire_date:
+          type: string
+          format: date-time
+
+  responses:
+    UnauthorizedResponse:
+      description: "Unauthorized - Missing or invalid token."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnauthorizedError'
+
+    AdminOnlyResponse:
+      description: "Forbidden - Admin privileges required."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AdminOnlyError'
+
+    UnauthorizedOrAdminResponse:
+      description: "Forbidden - The user is either unauthorized or lacks admin privileges."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnauthorizedOrAdminResponseError'
