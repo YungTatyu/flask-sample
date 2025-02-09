@@ -1246,7 +1246,7 @@ paths:
       summary: "Retrieve shift histories within a specified date range"
       description: "Fetch the shift histories that fall within the given start and end dates. If no date range is provided, the default range is the current month."
       tags:
-        - Shift history resource
+        - Shift histories resource
       parameters:
         - name: start_date
           in: query
@@ -1322,7 +1322,7 @@ paths:
       summary: "Register multiple shift history records from a CSV file"
       description: "Accepts a CSV file containing shift history records and registers all records if they are valid. If any record is invalid, no records will be registered."
       tags:
-        - Shift history resource
+        - Shift histories resource
       requestBody:
         required: true
         content:
@@ -1361,7 +1361,7 @@ paths:
       summary: "Get shift history with specified shift ID"
       description: "Get shift history based on the specified shift ID"
       tags:
-        - Shift history resource
+        - Shift histories resource
       parameters:
         - name: shiftHistoryId
           in: path
@@ -1382,7 +1382,7 @@ paths:
         Updates the specified shift information.  
         Only the properties included in the request body will be updated; unspecified properties will not be changed.
       tags:
-        - Shift history resource
+        - Shift histories resource
       parameters:
         - name: shiftHistoryId
           in: path
@@ -1408,7 +1408,7 @@ paths:
       summary: "Delete shift with specified shift ID"
       description: "Deletes a shift based on the specified shift ID"
       tags:
-        - Shift history resource
+        - Shift histories resource
       parameters:
         - name: shiftHistoryId
           in: path
@@ -1424,7 +1424,7 @@ paths:
       summary: "Update the 'paid_at' field for multiple shift histories"
       description: "This endpoint allows updating the 'paid_at' field for a list of shift histories. Only the 'paid_at' field is updated, while other fields remain unchanged."
       tags:
-        - Shift history resource
+        - Shift histories resource
       requestBody:
         required: true
         content:
@@ -1476,7 +1476,7 @@ paths:
       summary: "Get shift histories for a user within a specified date range (default: current month)"
       description: "Fetch the shift histories for a specific user, with optional cancellation status filtering. By default, returns shifts for the current month."
       tags:
-        - Shift history resource
+        - Shift histories resource
       # TODO 期間に関係なくみたい？
       parameters:
         - name: userId
@@ -1559,7 +1559,7 @@ paths:
       summary: "Set or update the deadline date for shift input"
       description: "This endpoint allows setting or updating the deadline date for shift input. Only the `deadline_date` field will be modified."
       tags:
-        - Shift setting resource
+        - Shift settings resource
       requestBody:
         required: true
         content:
@@ -1608,7 +1608,7 @@ paths:
       summary: "Retrieve the latest shift setting"
       description: "This endpoint returns the latest shift setting, including the deadline date for shift input."
       tags:
-        - Shift setting resource
+        - Shift settings resource
       responses:
         "200":
           description: "Successfully retrieved the latest shift setting"
