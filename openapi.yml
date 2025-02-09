@@ -663,8 +663,43 @@ paths:
             schema:
               $ref: '#/components/schemas/scheduledShiftRequiredAll'
       responses:
-        "200":
+        "201":
           description: "scheduled shift creation success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  start_time:
+                    type: string
+                    format: date-time
+                  working_time:
+                    type: integer
+                    description: "Total working time in minutes"
+                  breaking_time:
+                    type: integer
+                    description: "Total break time in minutes"
+                  canceled_at:
+                    type: string
+                    format: date-time
+                  updated_by:
+                    type: integer
+                  user_id:
+                    type: integer
+                  preferred_shift_id:
+                    type: integer
+        "400":
+          description: "Invalid request body"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid start_time format"
+        "401":
+          $ref: '#/components/responses/AdminOnlyResponse'
 
   /api/scheduled-shifts/{shiftId}:
     get:
@@ -1512,10 +1547,13 @@ components:
           type: integer
         breaking_time:
           type: integer
+        preferred_shift_id:
+          type: integer
       required:
         - start_time
         - working_time
         - breaking_time
+        - preferred_shift_id
 
     scheduledShift:
       type: object
