@@ -41,17 +41,25 @@ paths:
               schema:
                 type: object
                 properties:
-                  id:
+                  total:
                     type: integer
-                  name:
-                    type: string
-                  email:
-                    type: string
-                    format: email
-                  is_active:
-                    type: boolean
-                  created_by:
-                    type: integer
+                    description: "Total number of users"
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        email:
+                          type: string
+                          format: email
+                        is_active:
+                          type: boolean
+                        created_by:
+                          type: integer
         "400":
           description: "invalid query parameter."
           content:
@@ -59,7 +67,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  message:
+                  error:
                     type: string
                     example: "invalid query parameter."
         "401":
