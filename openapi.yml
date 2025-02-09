@@ -972,6 +972,34 @@ paths:
       responses:
         "201":
           description: "preferred shift creation success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  start_time:
+                    type: string
+                    format: date-time
+                    description: "Start time of the preferred shift"
+                  end_time:
+                    type: string
+                    format: date-time
+                    description: "End time of the preferred shift"
+                  user_id:
+                    type: integer
+                    description: "ID of the user associated with the shift"
+        "400":
+          description: "Invalid request body"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid start_time format"
+        "401":
+          $ref: '#/components/responses/UnauthorizedResponse'
 
   /api/preferred-shifts/{shiftId}:
     get:
