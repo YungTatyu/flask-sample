@@ -1506,6 +1506,9 @@ paths:
                   total:
                     type: integer
                     description: "Total number of shift histories found"
+                  total_work_time:
+                    type: integer
+                    description: "Total time of working time in mins"
                   results:
                     type: array
                     description: "List of shift histories"
