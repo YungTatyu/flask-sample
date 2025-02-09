@@ -1370,26 +1370,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/shiftHistory'
-    put:
-      summary: "update (everything) with specified shift ID"
-      tags:
-        - Shift history resource
-      parameters:
-        - name: shiftHistoryId
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        description: "start_time, end_time of the shift you want to update"
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/shiftHistoryRequiredAll'
-      responses:
-        "200":
-          description: "Successfully updated shift history"
     patch:
       summary: "update with specified shift ID (some element)"
       description: |
@@ -1432,6 +1412,58 @@ paths:
       responses:
         "200":
           description: "Successfully deleted shift"
+
+  /api/shift-histories/payments:
+    put:
+      summary: "Update the 'paid_at' field for multiple shift histories"
+      description: "This endpoint allows updating the 'paid_at' field for a list of shift histories. Only the 'paid_at' field is updated, while other fields remain unchanged."
+      tags:
+        - Shift history resource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                shifts:
+                  type: array
+                  items:
+                    type: integer
+                    description: "The unique ID of the shift history to be updated"
+      responses:
+        "200":
+          description: "Successfully updated the 'paid_at' field for the specified shift histories"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_updated:
+                    type: integer
+                    description: "Total number of shift histories successfully updated"
+        "400":
+          description: "Invalid data provided. The 'paid_at' field must be a valid datetime format."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: "Error message explaining the issue"
+        "401":
+          $ref: '#/components/responses/AdminOnlyResponse'
+        "404":
+          description: "One or more shift histories not found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: "Error message explaining the issue"
 
   /api/users/{userId}/shift-histories:
     get:
