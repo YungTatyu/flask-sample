@@ -684,6 +684,7 @@ paths:
                     format: date-time
                   updated_by:
                     type: integer
+                  #TODO preferred_shift_idからuser_id取得できるけど必要？
                   user_id:
                     type: integer
                   preferred_shift_id:
@@ -702,27 +703,14 @@ paths:
           $ref: '#/components/responses/AdminOnlyResponse'
 
   /api/scheduled-shifts/{shiftId}:
-    get:
-      summary: "Get scheduled shift with specified shift ID"
-      description: "Gets scheduled shift based on specified shift ID"
-      tags:
-        - Scheduled shifts resource
-      parameters:
-        - name: shiftId
-          in: path
-          description: "Unique ID for scheduled shift"
-          required: true
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: "Successfully obtained scheduled shift"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/scheduledShift'
-    put:
-      summary: "update (everything) with specified shift ID"
+    patch:
+      summary: "update with specified shift ID (some element)"
+      description: |
+        **Updatable items:**
+        - `start_time`
+        - `working_time`
+        - `breaking_time`
+        **Partial updates are possible. Only the items you include in the request body will be updated; other values will remain unchanged. **
       tags:
         - Scheduled shifts resource
       parameters:
@@ -738,52 +726,97 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/scheduledShiftRequiredAll'
+              additionalProperties: false
       responses:
         "200":
           description: "Successfully updated scheduled shift"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  start_time:
+                    type: string
+                    format: date-time
+                  working_time:
+                    type: integer
+                    description: "Total working time in minutes"
+                  breaking_time:
+                    type: integer
+                    description: "Total break time in minutes"
+                  canceled_at:
+                    type: string
+                    format: date-time
+                  updated_by:
+                    type: integer
+                  user_id:
+                    type: integer
+                  preferred_shift_id:
+                    type: integer
+        "400":
+          description: "Invalid request body"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid start_time format"
+        "401":
+          $ref: '#/components/responses/AdminOnlyResponse'
+
+  /api/scheduled-shifts/{shiftId}/cancel:
     patch:
-      summary: "update with specified shift ID (some element)"
-      description: |
-        Updates the specified shift information.  
-        Only the properties included in the request body will be updated; unspecified properties will not be changed.
+      summary: "Cancel a scheduled shift"
+      description: "Cancel a scheduled shift by providing the cancellation reason."
       tags:
         - Scheduled shifts resource
       parameters:
         - name: shiftId
           in: path
           required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        description: |
-          **Updatable items:**
-          - `start_time`
-          - `working_time`
-          - `breaking_time`
-          **Partial updates are possible. Only the items you include in the request body will be updated; other values ​​will remain unchanged. **
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/scheduledShift'
-              additionalProperties: false
-      responses:
-        200:
-          description: User information updated successfully
-    delete:
-      summary: "Delete shift with specified shift ID"
-      description: "Deletes a shift based on the specified shift ID"
-      tags:
-        - Scheduled shifts resource
-      parameters:
-        - name: shiftId
-          in: path
-          required: true
+          description: "The ID of the shift to be canceled"
           schema:
             type: integer
       responses:
         "200":
-          description: "Successfully deleted shift"
+          description: "Successfully canceled the shift"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  start_time:
+                    type: string
+                    format: date-time
+                  working_time:
+                    type: integer
+                    description: "Total working time in minutes"
+                  breaking_time:
+                    type: integer
+                    description: "Total break time in minutes"
+                  canceled_at:
+                    type: string
+                    format: date-time
+                  updated_by:
+                    type: integer
+                  user_id:
+                    type: integer
+                  preferred_shift_id:
+                    type: integer
+        "401":
+          $ref: '#/components/responses/AdminOnlyResponse'
+        "404":
+          description: "Shift not found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Shift not found."
 
   /api/users/{userId}/scheduled-shifts:
     get:
@@ -1575,9 +1608,12 @@ components:
         end_time:
           type: string
           format: date-time
+        userid:
+          type: integer
       required:
         - start_time
         - end_time
+        - userid
 
     preferredShift:
       type: object
