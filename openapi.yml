@@ -1021,26 +1021,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/preferredShift'
-    put:
-      summary: "update (everything) with specified shift ID"
-      tags:
-        - Preferred shifts resource
-      parameters:
-        - name: shiftId
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        description: "start_time, end_time of the shift you want to update"
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/preferredShiftRequiredAll'
-      responses:
-        "200":
-          description: "Successfully updated preferred shift"
+        "401":
+          $ref: '#/components/responses/UnauthorizedResponse'
+        "404":
+          description: "Shift not found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Shift not found."
     patch:
       summary: "update with specified shift ID (some element)"
       description: |
@@ -1053,22 +1045,39 @@ paths:
           in: path
           required: true
           schema:
-            type: string
+            type: integer
       requestBody:
         required: true
         description: |
           **Updatable items:**
           - `start_time`
           - `end_time`
-          **Partial updates are possible. Only the items you include in the request body will be updated; other values ​​will remain unchanged. **
+          **Partial updates are possible. Only the items you include in the request body will be updated; other values will remain unchanged. **
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/preferredShift'
               additionalProperties: false
       responses:
-        200:
-          description: User information updated successfully
+        "200":
+          description: "Successfully updated preferred shift"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/preferredShift'
+        "401":
+          $ref: '#/components/responses/UnauthorizedResponse'
+        "404":
+          description: "Shift not found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Shift not found."
+
     delete:
       summary: "Delete shift with specified shift ID"
       description: "Deletes a shift based on the specified shift ID"
@@ -1081,8 +1090,21 @@ paths:
           schema:
             type: integer
       responses:
-        "200":
+        "204":
           description: "Successfully deleted shift"
+          content: {}
+        "401":
+          $ref: '#/components/responses/UnauthorizedResponse'
+        "404":
+          description: "Shift not found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Shift not found."
 
   /api/users/{userId}/preferred-shifts:
     get:
@@ -1714,8 +1736,6 @@ components:
     preferredShift:
       type: object
       properties:
-        user_id:
-          type: integer
         start_time:
           type: string
           format: date-time
