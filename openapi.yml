@@ -1106,6 +1106,77 @@ paths:
                     type: string
                     example: "Shift not found."
 
+  /api/preferred-shifts/{userId}:
+    get:
+      summary: "Retrieve preferred shifts within a specified date range"
+      description: "Fetch the preferred shifts that fall within the given start and end dates. If no date range is provided, the default range is the current month."
+      tags:
+        - Preferred shifts resource
+      parameters:
+        - name: userId
+          in: path
+          description: "user's unique ID"
+          required: true
+          schema:
+            type: integer
+        - name: start_date
+          in: query
+          required: false
+          description: "Start date for the shift range (inclusive), formatted as yyyy-MM-dd. Defaults to the first day of the current month."
+          schema:
+            type: string
+            format: date
+            default: "2025-02-01"  # 例: 現在の月の1日
+        - name: end_date
+          in: query
+          required: false
+          description: "End date for the shift range (inclusive), formatted as yyyy-MM-dd. Defaults to the last day of the current month."
+          schema:
+            type: string
+            format: date
+            default: "2025-02-28"  # 例: 現在の月の最終日
+            
+      responses:
+        "200":
+          description: "Successfully obtained preferred shift"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: "Total number of preferred shifts found"
+                  results:
+                    type: array
+                    description: "List of preferred shifts"
+                    items:
+                      type: object
+                      properties:
+                        start_time:
+                          type: string
+                          format: date-time
+                          description: "Start time of the preferred shift"
+                        end_time:
+                          type: string
+                          format: date-time
+                          description: "End time of the preferred shift"
+                        user_id:
+                          type: integer
+                          description: "ID of the user associated with the shift"
+        "400":
+          description: "invalid query parameter."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "invalid query parameter."
+        "401":
+          $ref: '#/components/responses/UnauthorizedResponse'
+
   /api/users/{userId}/preferred-shifts:
     get:
       summary: "Get one preferred shift with the specified user ID"
