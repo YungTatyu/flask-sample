@@ -1554,6 +1554,74 @@ paths:
         "401":
           $ref: '#/components/responses/UnauthorizedResponse'
 
+  /api/shift-settings:
+    post:
+      summary: "Set or update the deadline date for shift input"
+      description: "This endpoint allows setting or updating the deadline date for shift input. Only the `deadline_date` field will be modified."
+      tags:
+        - Shift setting resource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deadline_date:
+                  type: string
+                  format: date
+                  description: "The deadline date for shift input (yyyy-MM-dd)"
+              required:
+                - deadline_date
+      responses:
+        "200":
+          description: "Successfully updated the deadline date"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deadline_date:
+                    type: string
+                    format: date
+                    description: "Updated deadline date for shift input"
+                  created_at:
+                    type: string
+                    format: date-time
+                  created_by:
+                    type: integer
+        "400":
+          description: "Invalid request data"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: "Error message"
+        "401":
+          $ref: '#/components/responses/AdminOnlyResponse'
+
+  /api/shift-settings/latest:
+    get:
+      summary: "Retrieve the latest shift setting"
+      description: "This endpoint returns the latest shift setting, including the deadline date for shift input."
+      tags:
+        - Shift setting resource
+      responses:
+        "200":
+          description: "Successfully retrieved the latest shift setting"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deadline_date:
+                    type: string
+                    format: date
+                    description: "The latest deadline date for shift input (yyyy-MM-dd)"
+
   /api/user-infos/{userInfoId}:
     get:
       summary: "Get user info with specified user info ID"
