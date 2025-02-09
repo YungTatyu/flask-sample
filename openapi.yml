@@ -202,8 +202,6 @@ paths:
                   type: string
                 is_active:
                   type: boolean
-                created_by:
-                  type: integer
               required:
                 - name
                 - email
@@ -325,6 +323,51 @@ paths:
           description: "User deleted successfully"
         "401":
           $ref: '#/components/responses/AdminOnlyResponse'
+
+  /api/users/infos:
+    post:
+      summary: "Create new user info"
+      description: "New user info registration. admin hits this api"
+      tags:
+        - Users resource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userInfo'
+      responses:
+        "200":
+          description: "user info creation success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name_ja:
+                    type: string
+                  phone_number1:
+                    type: string
+                  phone_number2:
+                    type: string
+                  nfc_id:
+                    type: integer
+                  level:
+                    type: number
+                  interview_date:
+                    type: string
+                    format: date
+                  contract_date:
+                    type: string
+                    format: date
+                  expire_date:
+                    type: string
+                    format: date
+                  birthday_date:
+                    type: string
+                    format: date
 
   /api/scheduled-shifts/{shiftId}/users:
     get:
@@ -903,51 +946,6 @@ paths:
         "200":
           description: "shift history creation success"
 
-  /api/user-infos:
-    get:
-      summary: "Search user infos with query parameters (pagination supported)"
-      description: "Get user infos with specified parameters and paginate with offset and limit"
-      tags:
-        - User infos resource
-      parameters:
-        - name: offset
-          in: query
-          description: "Acquisition start position (default: 0)"
-          required: false
-          schema:
-            type: integer
-            minimum: 0
-            default: 0
-        - name: limit
-          in: query
-          description: "Number of results retrieved (default: 10)"
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-            default: 10
-      responses:
-        "200":
-          description: "Successfully obtained user infos"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/userInfo'
-    post:
-      summary: "Create new user info"
-      description: "New user info registration. admin hits this api"
-      tags:
-        - User info resource
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/userInfoRequiredAll'
-      responses:
-        "200":
-          description: "user info creation success"
-
   /api/user-infos/{userInfoId}:
     get:
       summary: "Get user info with specified user info ID"
@@ -1405,13 +1403,16 @@ components:
           type: number
         interview_date:
           type: string
-          format: date-time
+          format: date
         contract_date:
           type: string
-          format: date-time
+          format: date
         expire_date:
           type: string
-          format: date-time
+          format: date
+        birthday_date:
+          type: string
+          format: date
       required:
         - name_ja
         - phone_number1
@@ -1421,6 +1422,7 @@ components:
         - interview_date
         - contract_date
         - expire_date
+        - birthday_date
 
     userInfo:
       type: object
@@ -1437,13 +1439,16 @@ components:
           type: number
         interview_date:
           type: string
-          format: date-time
+          format: date
         contract_date:
           type: string
-          format: date-time
+          format: date
         expire_date:
           type: string
-          format: date-time
+          format: date
+        birthday_date:
+          type: string
+          format: date
 
   responses:
     UnauthorizedResponse:
