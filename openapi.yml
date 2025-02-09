@@ -1264,6 +1264,12 @@ paths:
             type: string
             format: date
             default: "2025-02-28"  # 実際には動的に設定する必要あり
+        - name: is_paid
+          in: query
+          required: false
+          description: "Filter by payment status (`true` for paid, `false` for unpaid). If omitted, both paid and unpaid shifts are returned."
+          schema:
+            type: boolean
       responses:
         "200":
           description: "Successfully retrieved shift histories"
@@ -1495,6 +1501,12 @@ paths:
             type: string
             format: date
             default: "2025-02-28"  # 実際には動的に設定する必要あり
+        - name: is_paid
+          in: query
+          required: false
+          description: "Filter by payment status (`true` for paid, `false` for unpaid). If omitted, both paid and unpaid shifts are returned."
+          schema:
+            type: boolean
       responses:
         "200":
           description: "Successfully obtained shift histories"
