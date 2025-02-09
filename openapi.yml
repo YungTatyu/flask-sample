@@ -183,6 +183,14 @@ paths:
           $ref: '#/components/responses/UnauthorizedResponse'
         "404":
           description: "User not found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "User not found."
     put:
       summary: "update (everything) with the specified user ID"
       tags:
@@ -329,6 +337,7 @@ paths:
       responses:
         "204":
           description: "User deleted successfully"
+          content: {}
         "401":
           $ref: '#/components/responses/AdminOnlyResponse'
 
@@ -377,6 +386,172 @@ paths:
                     type: string
                     format: date
 
+  /api/users/infos/{userId}:
+    get:
+      summary: "Get user infos with specified user ID"
+      description: "Gets a user based on the specified user ID"
+      tags:
+        - Users resource
+      parameters:
+        - name: userId
+          in: path
+          description: "User's unique ID"
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Successfully acquired user"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  # TODO: user tableの情報もいる？
+                  # 画面設計次第
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  email:
+                    type: string
+                    format: email
+                  is_active:
+                    type: boolean
+                  name_ja:
+                    type: string
+                  phone_number1:
+                    type: string
+                  phone_number2:
+                    type: string
+                  nfc_id:
+                    type: integer
+                  level:
+                    type: number
+                  interview_date:
+                    type: string
+                    format: date
+                  contract_date:
+                    type: string
+                    format: date
+                  expire_date:
+                    type: string
+                    format: date
+                  birthday_date:
+                    type: string
+                    format: date
+        "401":
+          $ref: '#/components/responses/UnauthorizedResponse'
+        "404":
+          description: "User not found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "User not found."
+
+    patch:
+      summary: "update with specified user ID (some element)"
+      description: |
+        Updates the specified user information.  
+        Only the properties included in the request body will be updated; unspecified properties will not be changed.
+      tags:
+        - Users resource
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        description: |
+          **Updatable items:**
+          - name_ja
+          - phone_number1
+          - phone_number2
+          - nfc_id
+          - level
+          - interview_date
+          - contract_date
+          - expire_date
+          - birthday_date
+          **Partial updates are possible. Only the items you include in the request body will be updated; other values will remain unchanged. **
+        content:
+          application/json:
+            #TODO user tableとuser info更新のapi分けるべき？
+            schema:
+              type: object
+              properties:
+                name_ja:
+                  type: string
+                phone_number1:
+                  type: string
+                phone_number2:
+                  type: string
+                nfc_id:
+                  type: integer
+                level:
+                  type: number
+                interview_date:
+                  type: string
+                  format: date
+                contract_date:
+                  type: string
+                  format: date
+                expire_date:
+                  type: string
+                  format: date
+                birthday_date:
+                  type: string
+                  format: date
+              additionalProperties: false
+      responses:
+        "200":
+          description: "User updated successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name_ja:
+                    type: string
+                  phone_number1:
+                    type: string
+                  phone_number2:
+                    type: string
+                  nfc_id:
+                    type: integer
+                  level:
+                    type: number
+                  interview_date:
+                    type: string
+                    format: date
+                  contract_date:
+                    type: string
+                    format: date
+                  expire_date:
+                    type: string
+                    format: date
+                  birthday_date:
+                    type: string
+                    format: date
+        "400":
+          description: "Input data is invalid"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: "Details of the error that occurred"
+                    example: "Username is invalid."
+        "401":
+          $ref: '#/components/responses/UnauthorizedOrAdminResponse'
 
   /api/scheduled-shifts:
     get:
