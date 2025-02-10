@@ -1704,6 +1704,90 @@ paths:
                   message:
                     type: string
                     example: "Logged out successfully"
+
+  /api/admin/login:
+    post:
+      summary: "Log in a admin user"
+      description: "This endpoint logs in the user by providing email and password."
+      tags:
+        - "Admin"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: "User's email address"
+                password:
+                  type: string
+                  description: "User's password"
+      responses:
+        "200":
+          description: "Login successful"
+          headers:
+            Set-Cookie:
+              description: "A cookie that stores the session ID to authenticate subsequent requests."
+              schema:
+                type: string
+                example: "sessionid=abc1234567890; HttpOnly; Path=/"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Login successful"
+        "400":
+          description: "Input data is invalid"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: "Details of the error that occurred"
+                    example: "Missing password."
+        "401":
+          description: "Invalid credentials"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid credentials"
+
+  /api/admin/logout:
+    post:
+      summary: "Log out a admin user"
+      description: "This endpoint logs out the user by ending the session."
+      tags:
+        - "Admin"
+      responses:
+        "200":
+          description: "Logged out successfully"
+          headers:
+            Set-Cookie:
+              description: "Session cookie is invalidated (deleted)."
+              schema:
+                type: string
+                example: "sessionid=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Logged out successfully"
+
   /login:
     get:
       tags:
@@ -1724,7 +1808,6 @@ paths:
                   </html>
         "500":
           description: Server error page
-
   /admin/shifts:
     get:
       tags:
