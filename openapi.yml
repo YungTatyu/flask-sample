@@ -708,6 +708,25 @@ paths:
                           type: string
                         preferred_shift_id:
                           type: integer
+              example:
+                total: 2
+                results:
+                  - start_time: "2025-02-10T08:00:00Z"
+                    working_time: 480
+                    breaking_time: 60
+                    canceled_at: null
+                    updated_by: 3
+                    user_id: 101
+                    username: "JohnDoe"
+                    preferred_shift_id: 5
+                  - start_time: "2025-02-11T09:00:00Z"
+                    working_time: 420
+                    breaking_time: 45
+                    canceled_at: "2025-02-09T12:00:00Z"
+                    updated_by: 7
+                    user_id: 102
+                    username: "JaneDoe"
+                    preferred_shift_id: 6
         "400":
           description: "invalid query parameter."
           content:
@@ -1024,6 +1043,23 @@ paths:
                           type: string
                         preferred_shift_id:
                           type: integer
+              example:
+                total: 2
+                results:
+                  - start_time: "2025-02-10T08:00:00Z"
+                    working_time: 480
+                    breaking_time: 60
+                    canceled_at: null
+                    updated_by: 3
+                    user_id: 101
+                    preferred_shift_id: 5
+                  - start_time: "2025-02-11T09:00:00Z"
+                    working_time: 420
+                    breaking_time: 45
+                    canceled_at: "2025-02-09T12:00:00Z"
+                    updated_by: 7
+                    user_id: 101
+                    preferred_shift_id: 6
         "400":
           description: "invalid query parameter."
           content:
