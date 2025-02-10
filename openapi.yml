@@ -1169,6 +1169,16 @@ paths:
                   error:
                     type: string
                     example: "Shift not found."
+        "409":
+          description: "Shift is already confirmed and cannot be deleted"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Shift is already confirmed and cannot be deleted."
 
   /api/preferred-shifts/{userId}:
     get:
