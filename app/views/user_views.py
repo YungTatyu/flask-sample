@@ -15,7 +15,7 @@ def show_users():
 
 @user_bp.route("/signup", methods=["POST"])
 def create_user():
-    data = request.get_json()
+    data = request.form
 
     if not data.get("name") or not data.get("email") or not data.get("password"):
         flash("Missing required fields", "error")
@@ -36,7 +36,8 @@ def create_user():
     db.session.add(new_user)
     db.session.commit()
 
-    return render_template("users.html")
+    users = User.query.all()
+    return render_template("users.html", users=users)
 
 
 @user_bp.route("/signup", methods=["GET"])
