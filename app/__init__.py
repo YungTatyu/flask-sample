@@ -5,7 +5,7 @@ from flask import Flask
 from flask_migrate import Migrate
 
 from app.models import db
-from app.views.user_views import signup_bp, user_bp
+from app.views.user_views import user_bp
 
 migrate = Migrate()
 
@@ -34,6 +34,5 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
 
     app.register_blueprint(user_bp)
-    app.register_blueprint(signup_bp)
 
     return app
