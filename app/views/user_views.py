@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, render_template, request
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from werkzeug.security import generate_password_hash
 
 from app.models import db
@@ -19,15 +19,15 @@ def create_user():
 
     if not data.get("name") or not data.get("email") or not data.get("password"):
         flash("Missing required fields", "error")
-        return render_template("signup.html")
+        return render_template("signup.html"), 400
 
     if User.query.filter_by(name=data["name"]).first():
         flash("Name already exists", "error")
-        return render_template("signup.html")
+        return render_template("signup.html"), 409
 
     if User.query.filter_by(email=data["email"]).first():
         flash("Email already exists", "error")
-        return render_template("signup.html")
+        return render_template("signup.html"), 409
 
     # パスワードをハッシュ化
     hashed_password = generate_password_hash(data["password"])
@@ -36,8 +36,7 @@ def create_user():
     db.session.add(new_user)
     db.session.commit()
 
-    users = User.query.all()
-    return render_template("users.html", users=users)
+    return redirect(url_for("user.show_users"))
 
 
 @user_bp.route("/signup", methods=["GET"])

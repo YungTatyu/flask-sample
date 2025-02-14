@@ -17,4 +17,4 @@ check:
 
 .PHONY: test
 test:
-	pytest -vrA
+	pytest tests -vrA

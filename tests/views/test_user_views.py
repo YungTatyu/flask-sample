@@ -55,35 +55,30 @@ class TestUsersAPI:
     def test_get_users(self, client):
         """すべてのユーザー情報を取得するテスト"""
         response = client.get("/users")
+        response_data = response.data.decode("utf-8")
 
         assert response.status_code == 200
-
-        response_json = response.get_json()
-        assert isinstance(response_json, list)  # レスポンスがリストであることを確認
-        assert len(response_json) == len(self.users)
+        self.assert_response([user.name for user in self.users], response_data)
 
     def test_create_user(self, client, db_session):
         name = "test user"
         password = "password"
         email = "test@example.com"
         response = client.post(
-            "/users",
-            json={
+            "/signup",
+            data={
                 "name": name,
                 "password": password,
                 "email": email,
             },
         )
-        assert response.status_code == 201
+        assert response.status_code == 302
 
-        response_json = response.get_json()
-        self.assert_response(["id", "name", "email", "is_active"], response_json)
-
-        actual = db_session.query(User).filter_by(id=response_json["id"]).first()
+        actual = db_session.query(User).filter_by(name=name).first()
         self.assert_user(
             actual,
             User(
-                id=response_json["id"],
+                id=actual.id,  # idのみは取得できない
                 name=name,
                 email=email,
                 password=password,
@@ -96,65 +91,77 @@ class TestUsersAPI:
         password = "password"
         email = "test@example.com"
         response = client.post(
-            "/users",
-            json={
+            "/signup",
+            data={
                 "name": name,
                 "password": password,
                 "email": email,
             },
         )
+        response_data = response.data.decode("utf-8")
+
         assert response.status_code == 409
 
         # ユーザー数が変更されていないことを確認
         user_count = db_session.query(User).count()
         assert user_count == len(self.users)
+        self.assert_response("Name already exists", response_data)
 
     def test_create_duplicated_email(self, client, db_session):
         name = "test"
         password = "test1@example.com"
         email = "test1@example.com"  # 重複email
         response = client.post(
-            "/users",
-            json={
+            "/signup",
+            data={
                 "name": name,
                 "password": password,
                 "email": email,
             },
         )
+        response_data = response.data.decode("utf-8")
+
         assert response.status_code == 409
 
         # ユーザー数が変更されていないことを確認
         user_count = db_session.query(User).count()
         assert user_count == len(self.users)
+        self.assert_response("Email already exists", response_data)
 
     def test_create_user_missing_name(self, client, db_session):
         password = "password"
         email = "test@example.com"
         response = client.post(
-            "/users",
-            json={
+            "/signup",
+            data={
                 "password": password,
                 "email": email,
             },
         )
+        response_data = response.data.decode("utf-8")
+
         assert response.status_code == 400
 
         # ユーザー数が変更されていないことを確認
         user_count = db_session.query(User).count()
         assert user_count == len(self.users)
+        self.assert_response("Missing required fields", response_data)
 
     def test_create_user_missing_password(self, client, db_session):
         name = "name"
         email = "test@example.com"
         response = client.post(
-            "/users",
-            json={
+            "/signup",
+            data={
                 "name": name,
                 "email": email,
             },
         )
+        response_data = response.data.decode("utf-8")
+
         assert response.status_code == 400
 
         # ユーザー数が変更されていないことを確認
         user_count = db_session.query(User).count()
         assert user_count == len(self.users)
+        self.assert_response("Missing required fields", response_data)
