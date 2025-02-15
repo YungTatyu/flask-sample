@@ -11,7 +11,7 @@ def test_request_signup(client):
 
 
 @pytest.mark.usefixtures("client")
-class TestUsersAPI:
+class TestUsersEndpoints:
     """userAPIのテスト"""
 
     @pytest.fixture(autouse=True)
