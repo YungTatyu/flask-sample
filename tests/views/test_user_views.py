@@ -60,6 +60,7 @@ class TestUsersEndpoints:
         self.assert_response([user.name for user in self.users], response_data)
 
     def test_create_user(self, client, db_session):
+        """user作成が成功"""
         name = "test user"
         password = "password"
         email = "test@example.com"
