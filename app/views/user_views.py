@@ -11,7 +11,7 @@ user_bp = Blueprint("user", __name__, url_prefix="/")
 @user_bp.route("/", methods=["GET"])
 @login_required
 def home():
-    render_template("home.html", current_user=current_user)
+    return render_template("home.html", current_user=current_user)
 
 
 @user_bp.route("/users", methods=["GET"])
