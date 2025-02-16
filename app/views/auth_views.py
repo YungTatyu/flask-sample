@@ -1,4 +1,7 @@
 from flask import Blueprint, flash, render_template, request
+from werkzeug.security import check_password_hash
+
+from app.models.user_model import User
 
 
 auth_bp = Blueprint("auth", __name__)
@@ -15,4 +18,12 @@ def login():
     if not email or not password:
         flash("Missing required fields", "error")
         return render_template("login.html"), 400
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        flash("User does not exist", "error")
+        return render_template("login.html"), 400
+    if not check_password_hash(user.password, password):
+        flash("Invalid password")
+        return render_template("login.html"), 400
+
     return render_template("home.html")
