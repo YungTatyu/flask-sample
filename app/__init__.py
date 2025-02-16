@@ -5,8 +5,8 @@ from flask import Flask
 from flask_migrate import Migrate
 
 from app.models import db, login_manager
-from app.views.user_views import user_bp
 from app.views.auth_views import auth_bp
+from app.views.user_views import user_bp
 
 migrate = Migrate()
 
