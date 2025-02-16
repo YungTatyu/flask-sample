@@ -165,3 +165,38 @@ class TestUsersEndpoints:
         user_count = db_session.query(User).count()
         assert user_count == len(self.users)
         self.assert_response("Missing required fields", response_data)
+
+
+@pytest.mark.usefixtures("client")
+class TestHomePage:
+    @pytest.fixture(autouse=True)
+    def setup(self, db_session):
+        self.password = "password1"
+        self.user = User(
+            name="test user 1",
+            password=generate_password_hash(self.password),
+            email="test1@example.com",
+            is_active=True,
+        )
+
+        db_session.add(self.user)
+        db_session.commit()
+
+    def assert_response(self, expected_keys, response):
+        for key in expected_keys:
+            assert key in response
+
+    def login(self, data, client):
+        client.post(
+            "/login",
+            data=data,
+            follow_redirects=True,  # これを使うと cookie を保持
+        )
+
+    def test_authenticated_user(self, client):
+        self.login({"email": self.user.email, "password": self.password}, client)
+        response = client.get("/")
+        response_data = response.data.decode("utf-8")
+
+        assert response.status_code == 200
+        self.assert_response(f"hello, {self.user.name}", response_data)
