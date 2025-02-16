@@ -16,23 +16,26 @@ def show_users():
 @user_bp.route("/signup", methods=["POST"])
 def create_user():
     data = request.form
+    name = data.get("name")
+    email = data.get("email")
+    password = data.get("password")
 
-    if not data.get("name") or not data.get("email") or not data.get("password"):
+    if not name or not email or not password:
         flash("Missing required fields", "error")
         return render_template("signup.html"), 400
 
-    if User.query.filter_by(name=data["name"]).first():
+    if User.query.filter_by(name=name).first():
         flash("Name already exists", "error")
         return render_template("signup.html"), 409
 
-    if User.query.filter_by(email=data["email"]).first():
+    if User.query.filter_by(email=email).first():
         flash("Email already exists", "error")
         return render_template("signup.html"), 409
 
     # パスワードをハッシュ化
-    hashed_password = generate_password_hash(data["password"])
+    hashed_password = generate_password_hash(password)
 
-    new_user = User(name=data["name"], email=data["email"], password=hashed_password)
+    new_user = User(name=name, email=email, password=hashed_password)
     db.session.add(new_user)
     db.session.commit()
 
