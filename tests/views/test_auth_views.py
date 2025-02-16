@@ -20,6 +20,10 @@ class TestLogin:
         db_session.add(self.user)
         db_session.commit()
 
+    def assert_response(self, expected_keys, response):
+        for key in expected_keys:
+            assert key in response
+
     def test_200(self, client):
         """
         login成功のテスト
@@ -31,3 +35,13 @@ class TestLogin:
         assert response.status_code == 302
         # redirect先を確認
         assert response.location == "/"
+
+    def test_400_user_doesnot_exist(self, client):
+        response = client.post(
+            "/login", data={"email": "nonuser", "password": "password"}
+        )
+
+        response_data = response.data.decode("utf-8")
+
+        assert response.status_code == 400
+        self.assert_response("User does not exist", response_data)
