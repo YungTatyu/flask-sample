@@ -1,5 +1,5 @@
 import pytest
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.models.user_model import User
 
@@ -15,22 +15,23 @@ class TestUsersEndpoints:
     @pytest.fixture(autouse=True)
     def setup(self, db_session):
         """テストの前にユーザーをセットアップ"""
+        self.plain_passwords = {"1": "password1", "2": "password2", "3": "password3"}
         self.users = [
             User(
                 name="test user 1",
-                password="password1",
+                password=generate_password_hash(self.plain_passwords.get("1")),
                 email="test1@example.com",
                 is_active=True,
             ),
             User(
                 name="test user 2",
-                password="password2",
+                password=generate_password_hash(self.plain_passwords.get("2")),
                 email="test2@example.com",
                 is_active=True,
             ),
             User(
                 name="test user 3",
-                password="password3",
+                password=generate_password_hash(self.plain_passwords.get("3")),
                 email="test3@example.com",
                 is_active=False,
             ),
