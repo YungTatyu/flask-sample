@@ -12,8 +12,6 @@ def test_request_signup(client):
 
 @pytest.mark.usefixtures("client")
 class TestUsersEndpoints:
-    """userAPIのテスト"""
-
     @pytest.fixture(autouse=True)
     def setup(self, db_session):
         """テストの前にユーザーをセットアップ"""
