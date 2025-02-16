@@ -57,3 +57,19 @@ class TestLogin:
 
         assert response.status_code == 400
         self.assert_response("Invalid password", response_data)
+
+    def test_400_missing_email(self, client):
+        response = client.post("/login", data={"password": self.password})
+
+        response_data = response.data.decode("utf-8")
+
+        assert response.status_code == 400
+        self.assert_response("Missing required fields", response_data)
+
+    def test_400_missing_password(self, client):
+        response = client.post("/login", data={"email": self.user.email})
+
+        response_data = response.data.decode("utf-8")
+
+        assert response.status_code == 400
+        self.assert_response("Missing required fields", response_data)
