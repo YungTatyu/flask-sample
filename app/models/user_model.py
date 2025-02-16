@@ -1,4 +1,4 @@
-from app.models import db
+from app.models import db, login_manager
 
 
 class User(db.Model):
@@ -10,3 +10,8 @@ class User(db.Model):
 
     def __repr__(self):
         return f"<User {self.name}>"
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))

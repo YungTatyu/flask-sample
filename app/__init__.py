@@ -4,7 +4,7 @@ from contextlib import suppress
 from flask import Flask
 from flask_migrate import Migrate
 
-from app.models import db
+from app.models import db, login_manager
 from app.views.user_views import user_bp
 from app.views.auth_views import auth_bp
 
@@ -29,6 +29,8 @@ def create_app(test_config=None):
     db.init_app(app)
 
     migrate.init_app(app, db)
+
+    login_manager.init_app(app)
 
     # ensure the instance folder exists
     with suppress(OSError):

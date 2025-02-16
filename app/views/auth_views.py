@@ -1,6 +1,7 @@
-from flask import Blueprint, flash, render_template, request
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from werkzeug.security import check_password_hash
 
+from flask_login import login_user
 from app.models.user_model import User
 
 
@@ -26,4 +27,8 @@ def login():
         flash("Invalid password")
         return render_template("login.html"), 400
 
-    return render_template("home.html")
+    if not login_user(user):
+        flash("login failed. This user might be inactive")
+        return render_template("login.html"), 400
+
+    return redirect(url_for("user.home"))
