@@ -190,7 +190,7 @@ class TestHomePage:
         client.post(
             "/login",
             data=data,
-            follow_redirects=True,  # これを使うと cookie を保持
+            follow_redirects=True,  # これを使うと cookie を保持してlogin状態をkeepできる
         )
 
     def test_authenticated_user(self, client):
