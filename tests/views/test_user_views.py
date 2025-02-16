@@ -200,3 +200,8 @@ class TestHomePage:
 
         assert response.status_code == 200
         self.assert_response(f"hello, {self.user.name}", response_data)
+
+    def test_unauthenticated_user(self, client):
+        response = client.get("/")
+
+        assert response.status_code == 401
