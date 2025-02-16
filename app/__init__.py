@@ -6,6 +6,7 @@ from flask_migrate import Migrate
 
 from app.models import db
 from app.views.user_views import user_bp
+from app.views.auth_views import auth_bp
 
 migrate = Migrate()
 
@@ -34,5 +35,6 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
 
     app.register_blueprint(user_bp)
+    app.register_blueprint(auth_bp)
 
     return app
