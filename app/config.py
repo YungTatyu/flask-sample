@@ -9,3 +9,4 @@ SECRET_KEY = "dev"
 DATABASE = os.path.join(BASE_DIR, "app.sqlite")  # SQLiteのパス
 SQLALCHEMY_DATABASE_URI = f"sqlite:///{DATABASE}"  # SQLAlchemy用のURI
 SQLALCHEMY_TRACK_MODIFICATIONS = False  # パフォーマンス向上のためにオフ
+SECRET_KEY = os.getenv("SECRET_KEY")
