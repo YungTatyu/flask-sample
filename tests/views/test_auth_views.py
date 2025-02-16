@@ -37,11 +37,23 @@ class TestLogin:
         assert response.location == "/"
 
     def test_400_user_doesnot_exist(self, client):
+        """
+        存在しないユーザーでlogin
+        """
         response = client.post(
             "/login", data={"email": "nonuser", "password": "password"}
         )
 
         response_data = response.data.decode("utf-8")
-
         assert response.status_code == 400
         self.assert_response("User does not exist", response_data)
+
+    def test_400_invalid_password(self, client):
+        response = client.post(
+            "/login", data={"email": self.user.email, "password": "invalidpassword"}
+        )
+
+        response_data = response.data.decode("utf-8")
+
+        assert response.status_code == 400
+        self.assert_response("Invalid password", response_data)
