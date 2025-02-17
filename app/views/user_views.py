@@ -2,7 +2,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from werkzeug.security import generate_password_hash
 
-from app.models import db
+from app import db
 from app.models.user_model import User
 
 user_bp = Blueprint("user", __name__, url_prefix="/")

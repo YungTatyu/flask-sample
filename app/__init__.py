@@ -4,10 +4,11 @@ from contextlib import suppress
 from flask import Flask
 from flask_migrate import Migrate
 
-from app.models import db, login_manager
-from app.views.auth_views import auth_bp
-from app.views.user_views import user_bp
+from flask_login import LoginManager
+from flask_sqlalchemy import SQLAlchemy
 
+db = SQLAlchemy()
+login_manager = LoginManager()
 migrate = Migrate()
 
 
@@ -35,6 +36,10 @@ def create_app(test_config=None):
     # ensure the instance folder exists
     with suppress(OSError):
         os.makedirs(app.instance_path)
+
+    # 循環importを防ぐために遅延import
+    from app.views.auth_views import auth_bp
+    from app.views.user_views import user_bp
 
     app.register_blueprint(user_bp)
     app.register_blueprint(auth_bp)
