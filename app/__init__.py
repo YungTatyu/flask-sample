@@ -2,9 +2,8 @@ import os
 from contextlib import suppress
 
 from flask import Flask
-from flask_migrate import Migrate
-
 from flask_login import LoginManager
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
